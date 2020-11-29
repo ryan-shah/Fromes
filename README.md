@@ -6,8 +6,8 @@ However, since I didn't want to pay $200+ on their prints, I figured I'd see if 
 ## From their website
 - [How it works](https://www.frome.co/pages/how-it-works)
 
-The canvases you see are movies condensed into chronological color strips that represent each frame 
-- meaning the colors you see can roughly represent the main color of that scene. 
+The canvases you see are movies condensed into chronological color strips that represent each frame - 
+meaning the colors you see can roughly represent the main color of that scene. 
 The movie begins with a single color strip at the start of canvas (left) and ends with the last 
 strip (right). You can see how beautiful movies are in terms of colors!
 
