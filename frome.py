@@ -6,7 +6,7 @@ from os import listdir, makedirs, system
 from os.path import isfile, join, exists
 import sys, getopt
 from copy import deepcopy
-import threading
+import concurrent.futures
 
 directory_name = 'frome_images'
 in_file = ''
@@ -70,8 +70,8 @@ def main(argv):
 	files = [join(directory_name, f) for f in listdir(directory_name) if isfile(join(directory_name, f))]
 	files = sorted(files)
 	split_files = np.array_split(files, threads)
-	for fs in split_files:
-		process_images(fs)
+	with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
+	        executor.map(process_images, split_files)
 	generate_result()
 
 def generate_images():
@@ -98,9 +98,7 @@ def visualize_colors(colors, height=50, length=300):
 	rect = np.zeros((height, length, 3), dtype=np.uint8)
 	start = 0
 	percent = 1.0 / len(colors)
-	print(colors)
 	for color in colors:
-		print('color: ', color)
 		print(color[0], "{:0.2f}%".format(percent * 100))
 		end = start + (percent * length)
 		cv2.rectangle(rect, (int(start), 0), (int(end), height), \
