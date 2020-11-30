@@ -1,24 +1,31 @@
 #!/usr/bin/python
-
+from __future__ import print_function
 import cv2, numpy as np
 from sklearn.cluster import KMeans
 from os import listdir, makedirs, system
 from os.path import isfile, join, exists
 import sys, getopt
-from copy import deepcopy
-import concurrent.futures
+import threading
 
+# file management
 directory_name = 'frome_images'
 in_file = ''
 out_file = 'out.png'
 
+# output resolutions
 resolutions = {}
 resolution = (300, 50)
 
+# num threads
 threads = 1
 
+# list of colors (RGB, ID)
 colors = []
 
+# counts # of processed images per thread
+counts = [0]
+
+# set the available resolutions
 def setup_resolutions():
 	global resolutions
 	resolutions['8000'] = (7680, 4320)
@@ -29,7 +36,7 @@ def setup_resolutions():
 	resolutions['360'] = (640, 360)
 	resolutions['240'] = (320, 240)
 
-
+# main function
 def main(argv):
 	global directory_name
 	global in_file
@@ -37,8 +44,10 @@ def main(argv):
 	global resolutions
 	global resolution
 	global threads
+	global counts
 	setup_resolutions()
 
+	# define command-line parameters
 	try:
 		opts, args = getopt.getopt(argv, "d:hi:o:r:t:")
 	except getopt.GetoptError:
@@ -64,23 +73,52 @@ def main(argv):
 			out_file = arg
 		elif opt == '-t':
 			threads = int(arg)
+			counts = [0] * threads
 
-	if not in_file == '':
-		generate_images()
-	files = [join(directory_name, f) for f in listdir(directory_name) if isfile(join(directory_name, f))]
-	files = sorted(files)
-	split_files = np.array_split(files, threads)
-	with concurrent.futures.ThreadPoolExecutor(max_workers=threads) as executor:
-	        executor.map(process_images, split_files)
-	generate_result()
-
-def generate_images():
+	# create image directory if it doesn't exist
 	if not exists(directory_name):
 		makedirs(directory_name)
+
+	# if in_file exists, create images from video
+	if not in_file == '':
+		print("Generating images from " + in_file + "...")
+		generate_images()
+
+	# get list of files
+	files = [join(directory_name, f) for f in listdir(directory_name) if isfile(join(directory_name, f))]
+	# put in order
+	files = sorted(files)
+	# split per thread
+	split_files = np.array_split(files, threads)
+	# keep track of threads
+	ids = []
+	# generate threads
+	for index in range(threads):
+		x = threading.Thread(target=process_images, args=(split_files[index], index,))
+		ids.append(x)
+		x.start()
+
+	# Report thread progress
+	while sum(counts) < len(files):
+		percent = (1.0 + sum(counts))/len(files)
+		print("\rProcessing Images with " + str(threads) + " threads: " + \
+			str(round(percent * 100, 2)) + "%", end='')
+
+	# Join threads back together
+	for x in ids:
+		x.join()
+	print("\rProcessing Done! Outputing to " + out_file + "...")
+
+	# Show & Save final result
+	generate_result()
+
+# ffmpeg command line
+def generate_images():
 	cmd = 'ffmpeg -i ' + in_file + ' ' + join(directory_name, 'img%04d.png')
 	print(cmd)
 	system(cmd)
 
+# prints help info
 def print_help():
 	global resolutions
 	print('Create from video file')
@@ -93,30 +131,33 @@ def print_help():
 	r_sizes = '|'.join(r_values)
 	print('\tResolution: -r [' + r_sizes + ']')
 	print('\tOutput file: -o <filename>')
+	print('\tThread count: -t <num_threads>')
 
+# creates the final image
 def visualize_colors(colors, height=50, length=300):
 	rect = np.zeros((height, length, 3), dtype=np.uint8)
 	start = 0
 	percent = 1.0 / len(colors)
 	for color in colors:
-		print(color[0], "{:0.2f}%".format(percent * 100))
 		end = start + (percent * length)
 		cv2.rectangle(rect, (int(start), 0), (int(end), height), \
 			color[0].astype("uint8").tolist()[0], -1)
 		start = end
 	return rect
 
+# gets the id of the file name to ensure the colors are in order
 def get_id(file):
 	start = file.find('img')
 	return int(file[start+3:-4])
 
-def process_images(files):
+# gets the most common colors in a list of images
+def process_images(files, index):
 	global colors
 	global directory_name
 	global resolution
+	global counts
 
 	for f in files:
-		print('Processing ' + f + '...')
 		# Load image and convert to a list of pixels
 		image = cv2.imread(f)
 		image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -126,7 +167,9 @@ def process_images(files):
 		cluster = KMeans(n_clusters=1).fit(reshape)
 		id = get_id(f)
 		colors.append((cluster.cluster_centers_, id))
+		counts[index] += 1
 
+# creates the result and outputs it
 def generate_result():
 	colors.sort(key = lambda x: x[1])
 	visualize = visualize_colors(colors, resolution[1], resolution[0])
@@ -136,7 +179,7 @@ def generate_result():
 	cv2.waitKey()
 
 if __name__ == "__main__":
-	if len(sys.argv) < 1:
+	if len(sys.argv) < 2:
 		print('Error: invalid number of args')
 		print_help()
 		exit(2)
