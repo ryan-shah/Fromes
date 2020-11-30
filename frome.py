@@ -6,6 +6,7 @@ from os import listdir, makedirs, system
 from os.path import isfile, join, exists
 import sys, getopt
 from copy import deepcopy
+import threading
 
 directory_name = 'frome_images'
 in_file = ''
@@ -13,6 +14,10 @@ out_file = 'out.png'
 
 resolutions = {}
 resolution = (300, 50)
+
+threads = 1
+
+colors = []
 
 def setup_resolutions():
 	global resolutions
@@ -31,10 +36,11 @@ def main(argv):
 	global out_file
 	global resolutions
 	global resolution
+	global threads
 	setup_resolutions()
 
 	try:
-		opts, args = getopt.getopt(argv, "d:hi:o:r:")
+		opts, args = getopt.getopt(argv, "d:hi:o:r:t:")
 	except getopt.GetoptError:
 		print('Error: check arguments - ', argv)
 		print_help()
@@ -56,10 +62,17 @@ def main(argv):
 			resolution = resolutions[arg]
 		elif opt == '-o':
 			out_file = arg
+		elif opt == '-t':
+			threads = int(arg)
 
 	if not in_file == '':
 		generate_images()
-	process_images()
+	files = [join(directory_name, f) for f in listdir(directory_name) if isfile(join(directory_name, f))]
+	files = sorted(files)
+	split_files = np.array_split(files, threads)
+	for fs in split_files:
+		process_images(fs)
+	generate_result()
 
 def generate_images():
 	if not exists(directory_name):
@@ -85,20 +98,24 @@ def visualize_colors(colors, height=50, length=300):
 	rect = np.zeros((height, length, 3), dtype=np.uint8)
 	start = 0
 	percent = 1.0 / len(colors)
+	print(colors)
 	for color in colors:
+		print('color: ', color)
 		print(color[0], "{:0.2f}%".format(percent * 100))
 		end = start + (percent * length)
 		cv2.rectangle(rect, (int(start), 0), (int(end), height), \
-			color.astype("uint8").tolist()[0], -1)
+			color[0].astype("uint8").tolist()[0], -1)
 		start = end
 	return rect
 
-def process_images():
-	colors = []
+def get_id(file):
+	start = file.find('img')
+	return int(file[start+3:-4])
+
+def process_images(files):
+	global colors
 	global directory_name
 	global resolution
-	files = [join(directory_name, f) for f in listdir(directory_name) if isfile(join(directory_name, f))]
-	files = sorted(files)
 
 	for f in files:
 		print('Processing ' + f + '...')
@@ -109,8 +126,11 @@ def process_images():
 
 		# Find and display most dominant colors
 		cluster = KMeans(n_clusters=1).fit(reshape)
-		colors.append(cluster.cluster_centers_)
+		id = get_id(f)
+		colors.append((cluster.cluster_centers_, id))
 
+def generate_result():
+	colors.sort(key = lambda x: x[1])
 	visualize = visualize_colors(colors, resolution[1], resolution[0])
 	visualize = cv2.cvtColor(visualize, cv2.COLOR_RGB2BGR)
 	cv2.imwrite(out_file, visualize)
