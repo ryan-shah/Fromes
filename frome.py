@@ -3,7 +3,7 @@ from __future__ import print_function
 import cv2, numpy as np
 from sklearn.cluster import KMeans
 from os import listdir, makedirs, system
-from os.path import isfile, join, exists
+from os.path import isfile, join, exists, basename
 import sys, getopt
 import threading
 
@@ -161,8 +161,7 @@ def visualize_colors(colors, height=50, length=300):
 
 # gets the id of the file name to ensure the colors are in order
 def get_id(file):
-	start = file.find('img')
-	return int(file[start+3:-5])
+	return int(basename(file)[3:-5])
 
 # gets the most common colors in a list of images
 def process_images(files, index):
