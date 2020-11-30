@@ -25,6 +25,9 @@ colors = []
 # counts # of processed images per thread
 counts = [0]
 
+# number of frames per second to capture from the video
+rate = 0
+
 # set the available resolutions
 def setup_resolutions():
 	global resolutions
@@ -45,11 +48,12 @@ def main(argv):
 	global resolution
 	global threads
 	global counts
+	global rate
 	setup_resolutions()
 
 	# define command-line parameters
 	try:
-		opts, args = getopt.getopt(argv, "d:hi:o:r:t:")
+		opts, args = getopt.getopt(argv, "d:hi:o:q:r:t:")
 	except getopt.GetoptError:
 		print('Error: check arguments - ', argv)
 		print_help()
@@ -63,7 +67,7 @@ def main(argv):
 			directory_name = arg
 		elif opt == '-i':
 			in_file = arg
-		elif opt == '-r':
+		elif opt == '-q':
 			if arg not in resolutions.keys():
 				print('Error: invalid resolution - ' + arg)
 				print_help()
@@ -74,6 +78,8 @@ def main(argv):
 		elif opt == '-t':
 			threads = int(arg)
 			counts = [0] * threads
+		elif opt == '-r':
+			rate = int(arg)
 
 	# create image directory if it doesn't exist
 	if not exists(directory_name):
@@ -114,7 +120,11 @@ def main(argv):
 
 # ffmpeg command line
 def generate_images():
-	cmd = 'ffmpeg -i ' + in_file + ' ' + join(directory_name, 'img%04d.png')
+	global rate
+	rate_opt = ' '
+	if not rate == 0:
+		rate_opt = ' -r ' + str(rate) + ' '
+	cmd = 'ffmpeg -i ' + in_file + rate_opt + join(directory_name, 'img%04d.jpeg')
 	print(cmd)
 	result = system(cmd)
 	if not result == 0:
@@ -132,9 +142,10 @@ def print_help():
 	r_values = resolutions.keys()
 	r_values.sort(reverse=True, key=int)
 	r_sizes = '|'.join(r_values)
-	print('\tResolution: -r [' + r_sizes + ']')
+	print('\tResolution Quality: -q [' + r_sizes + ']')
 	print('\tOutput file: -o <filename>')
 	print('\tThread count: -t <num_threads>')
+	print('\tFrames Per Second: -r <frame-rate>')
 
 # creates the final image
 def visualize_colors(colors, height=50, length=300):
@@ -151,7 +162,7 @@ def visualize_colors(colors, height=50, length=300):
 # gets the id of the file name to ensure the colors are in order
 def get_id(file):
 	start = file.find('img')
-	return int(file[start+3:-4])
+	return int(file[start+3:-5])
 
 # gets the most common colors in a list of images
 def process_images(files, index):
