@@ -2,28 +2,38 @@
 
 import cv2, numpy as np
 from sklearn.cluster import KMeans
-from os import listdir
-from os.path import isfile, join
+from os import listdir, makedirs
+from os.path import isfile, join, exists
 import sys, getopt
 
+directory_name = 'frome_images'
+in_file = ''
+out_file = 'out.png'
+
+resolutions = {}
+resolutions['8k'] = (4320, 7680)
+resolutions['4k'] = (3840, 2160)
+resolutions['1080'] = (1920, 1080)
+resolutions['720'] = (1280, 720)
+resolutions['480'] = (852, 480)
+resolutions['360'] = (640, 360)
+resolutions['240'] = (320, 240)
+resolution = resolutions['1080']
+
+
 def main(argv):
+	global directory_name
+	global in_file
+	global out_file
+	global resolutions
+	global resolution
+
 	try:
 		opts, args = getopt.getopt(argv, "d:hi:o:r:")
 	except getopt.GetoptError:
 		print('Error: check arguments - ', argv)
 		print_help()
 		exit(2)
-
-	directory_name = 'frome_images'
-	in_file = ''
-	out_file = 'out.png'
-	resolutions = {}
-	resolutions['1080'] = (1920, 1080)
-	resolutions['720'] = (1280, 720)
-	resolutions['480'] = (852, 480)
-	resolutions['360'] = (640, 360)
-	resolutions['240'] = (320, 240)
-	resolution = resolutions['1080']
 
 	for opt, arg in opts:
 		if opt == '-h':
@@ -46,6 +56,14 @@ def main(argv):
 	print(in_file)
 	print(resolution)
 	print(out_file)
+	generate_images()
+
+def generate_images():
+	if not exists(directory_name):
+		makedirs(directory_name)
+	cmd = 'ffmpeg -i ' + in_file + ' ' + join(directory_name, 'img%04d.png')
+	print(cmd)
+#	os.system('ffmpeg -i muppet.mp4 muppet-pics/img%04d.png')
 
 def print_help():
 	print('Create from video file')
@@ -53,7 +71,8 @@ def print_help():
 	print('Create from directory of images')
 	print('\tfrome.py -d <images-directory-name>')
 	print('Extra options:')
-	print('\tResolution: -r [1080|720|480|360|240]')
+	r_sizes = '|'.join(resolutions.keys())
+	print('\tResolution: -r [' + r_sizes + ']')
 	print('\tOutput file: -o <filename>')
 
 

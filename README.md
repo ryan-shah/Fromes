@@ -16,3 +16,7 @@ strip (right). You can see how beautiful movies are in terms of colors!
 1. Use ffmpeg to split a video into it's frames
 2. Using the sklearn python library to determine the most common color in each image.
 3. Using numpy to gather said images and display them in order
+
+## Examples
+- [Man or Muppet music video](https://www.youtube.com/watch?v=cRTjksM3YAs)
+![](example-images/muppet.png)
