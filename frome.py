@@ -81,7 +81,7 @@ def main(argv):
 
 	# if in_file exists, create images from video
 	if not in_file == '':
-		print("Generating images from " + in_file + "...")
+		print("Generating images from " + in_file + " in " + directory_name + "...")
 		generate_images()
 
 	# get list of files
@@ -116,7 +116,10 @@ def main(argv):
 def generate_images():
 	cmd = 'ffmpeg -i ' + in_file + ' ' + join(directory_name, 'img%04d.png')
 	print(cmd)
-	system(cmd)
+	result = system(cmd)
+	if not result == 0:
+		print('ffmpeg returned with exit code ' + str(result))
+		exit(1)
 
 # prints help info
 def print_help():
