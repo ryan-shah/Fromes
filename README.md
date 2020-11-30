@@ -33,5 +33,8 @@ strip (right). You can see how beautiful movies are in terms of colors!
 - [Man or Muppet music video](https://www.youtube.com/watch?v=cRTjksM3YAs)
 ![](example-images/muppet.png)
 
+- [Man or Muppet music video - 1fps](https://www.youtube.com/watch?v=cRTjksM3YAs)
+![](example-images/muppet_1fps.png)
+
 - [Monty Python & the Holy Grail - 1fps](https://www.youtube.com/watch?v=PxagJ8fpsv8)
 ![](example-images/holy_grail_1fps.png)
