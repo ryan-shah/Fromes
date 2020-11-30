@@ -42,6 +42,8 @@ strip (right). You can see how beautiful movies are in terms of colors!
 	- default: `False`
 - `-t <num_threads>`: Threads. Number of worker threads to process images. 
 	- default: `1`
+- `-l <length>`: Length. Override the length of the resolution
+- `-w <width>`: Width. OVerride the width of the resolution
 
 ## Examples
 - [glip_glops.mp4](example-videos/glip_glops.mp4): `./frome.py -i example-videos/glip_glops.mp4 -d tmp -o example-images/glip_glops.png -q 8000 -t 10`
@@ -61,3 +63,6 @@ strip (right). You can see how beautiful movies are in terms of colors!
 
 - [Monty Python & the Holy Grail - 1fps](https://www.youtube.com/watch?v=PxagJ8fpsv8)
 ![](example-images/holy_grail_1fps.png)
+
+- [Monty Python & the Holy Grail - FROME Comparison](https://www.frome.co/products/monty-python-and-the-holy-grail)
+![](example-images/monty_python_compare.jpg)

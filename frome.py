@@ -74,12 +74,14 @@ def main(argv):
 
 	# define command-line parameters
 	try:
-		opts, args = getopt.getopt(argv, "cd:hi:o:q:r:s:t:")
+		opts, args = getopt.getopt(argv, "cd:hi:l:o:q:r:s:t:w:")
 	except getopt.GetoptError:
 		print('Error: check arguments - ', argv)
 		print_help()
 		exit(2)
 
+	l = 0
+	w = 0
 	for opt, arg in opts:
 		if opt == '-h':
 			print_help()
@@ -105,6 +107,15 @@ def main(argv):
 			clean = True
 		elif opt == '-s':
 			show = True
+		elif opt == '-l':
+			l = int(arg)
+		elif opt == '-w':
+			w = int(arg)
+
+	if not l == 0:
+		resolution[0] = l
+	if not w == 0:
+		resolution[1] = w
 
 	start = time.time()
 
