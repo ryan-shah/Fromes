@@ -23,6 +23,26 @@ strip (right). You can see how beautiful movies are in terms of colors!
 	- opencv-python: `pip install opencv-python==4.2.0.32`
 	- scikit-learn: `pip install scikit-learn`
 	- watchdog: `pip install watchdog`
+
+### Command line arguments
+- `-c`: clean. Deletes generated image files and directory. Recommended for large video files to preserve disk space.
+	- default: `False`
+- `-d <directory>`: Image Directory. When used with `-i`, directory in which generated images are stored. Otherwise, the directory used to find images. Images must be in the following format: `img%05d.jpeg`.
+	- default: `frome_images`
+- `-h`: Help. Shows the help command
+- `-i <in_file>`: Input. Video file to generate from. Passed to ffmpeg for processing. If not given, attempts to use images in directory provided by `-d`
+	- default: `None`
+- `-o <out_file>`: Output. File to output generated image.
+	- default: `out.png`
+- `-q <resolution>`: Image Quality. Uses standard resolutions: 240, 360, 480, 720, 1080, 4000, 8000.
+	- default: `1080`
+- `-r <rate>`: Frames per second. Passed to ffmpeg with the -r parameter. Recommend using 1 for large videos. When excluded ffmpeg uses the fps of the video clip (usually 24).
+	- default: `None`
+- `-s`: Show. Whether or not to display the image after program is complete. Exit image with any key press.
+	- default: `False`
+- `-t <num_threads>`: Threads. Number of worker threads to process images. 
+	- default: `1`
+
 ## Examples
 - [glip_glops.mp4](example-videos/glip_glops.mp4): `./frome.py -i example-videos/glip_glops.mp4 -d tmp -o example-images/glip_glops.png -q 8000 -t 10`
 ![](example-images/glip_glops.png)
@@ -35,6 +55,9 @@ strip (right). You can see how beautiful movies are in terms of colors!
 
 - [Man or Muppet music video - 1fps](https://www.youtube.com/watch?v=cRTjksM3YAs)
 ![](example-images/muppet_1fps.png)
+
+- [Man or Muppet music video - 0.5fps](https://www.youtube.com/watch?v=cRTjksM3YAs)
+![](example-images/muppet_p5fps.png)
 
 - [Monty Python & the Holy Grail - 1fps](https://www.youtube.com/watch?v=PxagJ8fpsv8)
 ![](example-images/holy_grail_1fps.png)

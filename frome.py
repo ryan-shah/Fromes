@@ -29,7 +29,7 @@ colors = []
 counts = [0]
 
 # number of frames per second to capture from the video
-rate = 0
+rate = ''
 
 # files to be processed
 file_queue = Queue.Queue()
@@ -46,6 +46,7 @@ show = False
 # set the available resolutions
 def setup_resolutions():
 	global resolutions
+	global resolution
 	resolutions['8000'] = (7680, 4320)
 	resolutions['4000'] = (3840, 2160)
 	resolutions['1080'] = (1920, 1080)
@@ -53,6 +54,7 @@ def setup_resolutions():
 	resolutions['480'] = (852, 480)
 	resolutions['360'] = (640, 360)
 	resolutions['240'] = (320, 240)
+	resolution = resolutions['1080']
 
 # main function
 def main(argv):
@@ -98,7 +100,7 @@ def main(argv):
 			threads = int(arg)
 			counts = [0] * threads
 		elif opt == '-r':
-			rate = int(arg)
+			rate = arg
 		elif opt == '-c':
 			clean = True
 		elif opt == '-s':
@@ -188,7 +190,7 @@ def on_created(event):
 def generate_images():
 	global rate
 	rate_opt = ' '
-	if not rate == 0:
+	if not rate == '':
 		rate_opt = ' -r ' + str(rate) + ' '
 	cmd = 'ffmpeg -i ' + in_file + rate_opt + join(directory_name, 'img%05d.jpeg')
 	print(cmd)
