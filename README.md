@@ -22,7 +22,7 @@ strip (right). You can see how beautiful movies are in terms of colors!
 - python2.7
 	- opencv-python: `pip install opencv-python==4.2.0.32`
 	- scikit-learn: `pip install scikit-learn`
-
+	- watchdog: `pip install watchdog`
 ## Examples
 - [glip_glops.mp4](example-videos/glip_glops.mp4): `./frome.py -i example-videos/glip_glops.mp4 -d tmp -o example-images/glip_glops.png -q 8000 -t 10`
 ![](example-images/glip_glops.png)
@@ -33,5 +33,8 @@ strip (right). You can see how beautiful movies are in terms of colors!
 - [Man or Muppet music video](https://www.youtube.com/watch?v=cRTjksM3YAs)
 ![](example-images/muppet.png)
 
-- [Monty Python & the Holy Grail](https://www.youtube.com/watch?v=PxagJ8fpsv8)
-![](example-images/holy_grail.png)
+- [Man or Muppet music video - 1fps](https://www.youtube.com/watch?v=cRTjksM3YAs)
+![](example-images/muppet_1fps.png)
+
+- [Monty Python & the Holy Grail - 1fps](https://www.youtube.com/watch?v=PxagJ8fpsv8)
+![](example-images/holy_grail_1fps.png)

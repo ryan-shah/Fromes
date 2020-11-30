@@ -2,10 +2,13 @@
 from __future__ import print_function
 import cv2, numpy as np
 from sklearn.cluster import KMeans
-from os import listdir, makedirs, system
+from os import listdir, makedirs, system, remove, rmdir
 from os.path import isfile, join, exists, basename
 import sys, getopt
-import threading
+import threading, Queue
+from watchdog.observers import Observer
+from watchdog.events import PatternMatchingEventHandler
+import time
 
 # file management
 directory_name = 'frome_images'
@@ -28,6 +31,18 @@ counts = [0]
 # number of frames per second to capture from the video
 rate = 0
 
+# files to be processed
+file_queue = Queue.Queue()
+
+# pid of file generation
+gen_id = 0
+
+# whether to delete files
+clean = False
+
+# whether to display the result
+show = False
+
 # set the available resolutions
 def setup_resolutions():
 	global resolutions
@@ -49,11 +64,15 @@ def main(argv):
 	global threads
 	global counts
 	global rate
+	global file_queue
+	global gen_id
+	global clean
+	global show
 	setup_resolutions()
 
 	# define command-line parameters
 	try:
-		opts, args = getopt.getopt(argv, "d:hi:o:q:r:t:")
+		opts, args = getopt.getopt(argv, "cd:hi:o:q:r:s:t:")
 	except getopt.GetoptError:
 		print('Error: check arguments - ', argv)
 		print_help()
@@ -80,43 +99,90 @@ def main(argv):
 			counts = [0] * threads
 		elif opt == '-r':
 			rate = int(arg)
+		elif opt == '-c':
+			clean = True
+		elif opt == '-s':
+			show = True
+
+	start = time.time()
 
 	# create image directory if it doesn't exist
 	if not exists(directory_name):
 		makedirs(directory_name)
 
+	watcher = Observer()
 	# if in_file exists, create images from video
 	if not in_file == '':
-		print("Generating images from " + in_file + " in " + directory_name + "...")
-		generate_images()
+		# set up file watcher
+		event_handler = PatternMatchingEventHandler("*.jpeg", "", True, True)
+		event_handler.on_created = on_created
+		watcher.schedule(event_handler, directory_name, recursive=False)
+		watcher.start()
 
-	# get list of files
-	files = [join(directory_name, f) for f in listdir(directory_name) if isfile(join(directory_name, f))]
-	# put in order
-	files = sorted(files)
-	# split per thread
-	split_files = np.array_split(files, threads)
+		print("Generating images from " + in_file + " in " + directory_name + "...")
+		gen_id = threading.Thread(target=generate_images)
+		gen_id.start()
+	else:
+		# get list of files
+		files = [join(directory_name, f) for f in listdir(directory_name) if isfile(join(directory_name, f))]
+		# put in order
+		files = sorted(files)
+		for f in files:
+			Queue.put(f)
 	# keep track of threads
 	ids = []
 	# generate threads
 	for index in range(threads):
-		x = threading.Thread(target=process_images, args=(split_files[index], index,))
+		x = threading.Thread(target=process_images, args=(index,))
 		ids.append(x)
 		x.start()
 
 	# Report thread progress
-	while sum(counts) < len(files):
-		percent = (1.0 + sum(counts))/len(files)
+	if not in_file == '':
+		gen_id.join()
+		gen_id = 0
+
+	while not file_queue.empty():
+		sc = sum(counts)
+		sz = file_queue.qsize()
+		total = sc + sz
+		percent = round(((0.0 + sc) / total) * 100, 2)
+		now = time.time()
 		print("\rProcessing Images with " + str(threads) + " threads: " + \
-			str(round(percent * 100, 2)) + "%", end='')
+			str(sc) + ' images processed, ' + str(sz) + " images remaining, " + \
+			str(percent) + "%. time=" + get_time(now-start), end='')
 
 	# Join threads back together
 	for x in ids:
 		x.join()
-	print("\rProcessing Done! Outputing to " + out_file + "...")
+	end = time.time()
+	print("\nDone! Processed " + str(sum(counts)) + " images in " + get_time(end-start) + ". Outputing to " + out_file + "...")
+
+	if not in_file == '':
+		watcher.stop()
+		watcher.join()
 
 	# Show & Save final result
 	generate_result()
+	if clean:
+		try:
+			rmdir(directory_name)
+		except OSError:
+			print(directory_name + ' is not empty. Delete manually or check for artifacts.')
+
+# format time
+def get_time(elapsed):
+	y = int(elapsed % 1 * 100)
+	x = int(elapsed)
+	hours = x / (60 * 60)
+	x = x - (hours * 60 * 60)
+	mins = x / 60
+	x = x - (mins * 60)
+	return "%02d:%02d:%02d.%2d" % (hours, mins, x, y)
+
+# on_created event handler
+def on_created(event):
+	file_queue.put(event.src_path)
 
 # ffmpeg command line
 def generate_images():
@@ -124,7 +190,7 @@ def generate_images():
 	rate_opt = ' '
 	if not rate == 0:
 		rate_opt = ' -r ' + str(rate) + ' '
-	cmd = 'ffmpeg -i ' + in_file + rate_opt + join(directory_name, 'img%04d.jpeg')
+	cmd = 'ffmpeg -i ' + in_file + rate_opt + join(directory_name, 'img%05d.jpeg')
 	print(cmd)
 	result = system(cmd)
 	if not result == 0:
@@ -146,6 +212,7 @@ def print_help():
 	print('\tOutput file: -o <filename>')
 	print('\tThread count: -t <num_threads>')
 	print('\tFrames Per Second: -r <frame-rate>')
+	print('\tDelete generated image files: -c')
 
 # creates the final image
 def visualize_colors(colors, height=50, length=300):
@@ -164,13 +231,19 @@ def get_id(file):
 	return int(basename(file)[3:-5])
 
 # gets the most common colors in a list of images
-def process_images(files, index):
+def process_images(index):
 	global colors
 	global directory_name
 	global resolution
 	global counts
+	global file_queue
+	global gen_id
+	global clean
 
-	for f in files:
+	# run while images are getting generated or are in queue
+	while gen_id != 0 or not file_queue.empty():
+		# get file to process
+		f = file_queue.get()
 		# Load image and convert to a list of pixels
 		image = cv2.imread(f)
 		image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -181,6 +254,9 @@ def process_images(files, index):
 		id = get_id(f)
 		colors.append((cluster.cluster_centers_, id))
 		counts[index] += 1
+		if clean:
+			remove(f)
+		file_queue.task_done()
 
 # creates the result and outputs it
 def generate_result():
@@ -188,8 +264,9 @@ def generate_result():
 	visualize = visualize_colors(colors, resolution[1], resolution[0])
 	visualize = cv2.cvtColor(visualize, cv2.COLOR_RGB2BGR)
 	cv2.imwrite(out_file, visualize)
-	cv2.imshow(out_file, visualize)
-	cv2.waitKey()
+	if show:
+		cv2.imshow(out_file, visualize)
+		cv2.waitKey()
 
 if __name__ == "__main__":
 	if len(sys.argv) < 2:
