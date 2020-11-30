@@ -2,23 +2,27 @@
 
 import cv2, numpy as np
 from sklearn.cluster import KMeans
-from os import listdir, makedirs
+from os import listdir, makedirs, system
 from os.path import isfile, join, exists
 import sys, getopt
+from copy import deepcopy
 
 directory_name = 'frome_images'
 in_file = ''
 out_file = 'out.png'
 
 resolutions = {}
-resolutions['8k'] = (4320, 7680)
-resolutions['4k'] = (3840, 2160)
-resolutions['1080'] = (1920, 1080)
-resolutions['720'] = (1280, 720)
-resolutions['480'] = (852, 480)
-resolutions['360'] = (640, 360)
-resolutions['240'] = (320, 240)
-resolution = resolutions['1080']
+resolution = (300, 50)
+
+def setup_resolutions():
+	global resolutions
+	resolutions['8000'] = (7680, 4320)
+	resolutions['4000'] = (3840, 2160)
+	resolutions['1080'] = (1920, 1080)
+	resolutions['720'] = (1280, 720)
+	resolutions['480'] = (852, 480)
+	resolutions['360'] = (640, 360)
+	resolutions['240'] = (320, 240)
 
 
 def main(argv):
@@ -27,6 +31,7 @@ def main(argv):
 	global out_file
 	global resolutions
 	global resolution
+	setup_resolutions()
 
 	try:
 		opts, args = getopt.getopt(argv, "d:hi:o:r:")
@@ -52,30 +57,29 @@ def main(argv):
 		elif opt == '-o':
 			out_file = arg
 
-	print(directory_name)
-	print(in_file)
-	print(resolution)
-	print(out_file)
-	generate_images()
+	if not in_file == '':
+		generate_images()
+	process_images()
 
 def generate_images():
 	if not exists(directory_name):
 		makedirs(directory_name)
 	cmd = 'ffmpeg -i ' + in_file + ' ' + join(directory_name, 'img%04d.png')
 	print(cmd)
-#	os.system('ffmpeg -i muppet.mp4 muppet-pics/img%04d.png')
+	system(cmd)
 
 def print_help():
+	global resolutions
 	print('Create from video file')
 	print('\tfrome.py -i <video-input> [-d <images-directory-name>]')
 	print('Create from directory of images')
 	print('\tfrome.py -d <images-directory-name>')
 	print('Extra options:')
-	r_sizes = '|'.join(resolutions.keys())
+	r_values = resolutions.keys()
+	r_values.sort(reverse=True, key=int)
+	r_sizes = '|'.join(r_values)
 	print('\tResolution: -r [' + r_sizes + ']')
 	print('\tOutput file: -o <filename>')
-
-
 
 def visualize_colors(colors, height=50, length=300):
 	rect = np.zeros((height, length, 3), dtype=np.uint8)
@@ -91,8 +95,9 @@ def visualize_colors(colors, height=50, length=300):
 
 def process_images():
 	colors = []
-	dirname = 'muppet-pics'
-	files = [join(dirname, f) for f in listdir(dirname) if isfile(join(dirname, f))]
+	global directory_name
+	global resolution
+	files = [join(directory_name, f) for f in listdir(directory_name) if isfile(join(directory_name, f))]
 	files = sorted(files)
 
 	for f in files:
@@ -106,15 +111,11 @@ def process_images():
 		cluster = KMeans(n_clusters=1).fit(reshape)
 		colors.append(cluster.cluster_centers_)
 
-	# 720
-	# visualize = visualize_colors(colors, 720, 1280)
-	# 1080
-	visualize = visualize_colors(colors, 1080, 1920)
+	visualize = visualize_colors(colors, resolution[1], resolution[0])
 	visualize = cv2.cvtColor(visualize, cv2.COLOR_RGB2BGR)
-	cv2.imwrite('out.png', visualize)
-	cv2.imshow('visualize', visualize)
+	cv2.imwrite(out_file, visualize)
+	cv2.imshow(out_file, visualize)
 	cv2.waitKey()
-
 
 if __name__ == "__main__":
 	if len(sys.argv) < 1:
