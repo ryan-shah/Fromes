@@ -21,6 +21,5 @@ strip (right). You can see how beautiful movies are in terms of colors!
 - [Man or Muppet music video](https://www.youtube.com/watch?v=cRTjksM3YAs)
 ![](example-images/muppet.png)
 
-- [glip_glops.mp4](example-videos/glip_glops.mp4)
-	- `./frome.py -i example-videos/glip_glops.mp4 -d test -o example-images/glip_glops.png -r 8000`
+- [glip_glops.mp4](example-videos/glip_glops.mp4): `./frome.py -i example-videos/glip_glops.mp4 -d test -o example-images/glip_glops.png -r 8000`
 ![](example-images/glip_glops.png)
