@@ -238,8 +238,7 @@ def visualize_colors(colors, height=50, length=300):
 	percent = 1.0 / len(colors)
 	for color in colors:
 		end = start + (percent * length)
-		cv2.rectangle(rect, (int(start), 0), (int(end), height), \
-			color[0], -1)
+		cv2.rectangle(rect, (int(start), 0), (int(end), height), color[0], -1)
 		start = end
 	return rect
 
@@ -284,20 +283,22 @@ def output_csv():
 			writer.writerow(row)
 
 def generate_from_csv():
+	global colors
 	with open(in_file) as f:
 		reader = csv.reader(f, delimiter=',')
+		row_num = 1
 		for row in f:
-			color = row[:-1]
-			index = row[-1:]
-			colors.append((color, index))
+			color = [int(row[0]), int(row[1]), int(row[2])]
+			colors.append((color, row_num))
+			row_num += 1
 	colors.sort(key = lambda x: x[1])
 	visualize = visualize_colors(colors, resolution[1], resolution[0])
 	visualize = cv2.cvtColor(visualize, cv2.COLOR_RGB2BGR)
-	output_csv()
 	cv2.imwrite(out_file, visualize)
 	if show:
 		cv2.imshow(out_file, visualize)
 		cv2.waitKey()
+	exit(0)
 
 # creates the result and outputs it
 def generate_result():

@@ -30,9 +30,9 @@ strip (right). You can see how beautiful movies are in terms of colors!
 - `-d <directory>`: Image Directory. When used with `-i`, directory in which generated images are stored. Otherwise, the directory used to find images. Images must be in the following format: `img%05d.jpeg`.
 	- default: `frome_images`
 - `-h`: Help. Shows the help command
-- `-i <in_file>`: Input. Video file to generate from. Passed to ffmpeg for processing. If not given, attempts to use images in directory provided by `-d`
+- `-i <in_file>`: Input. Video file to generate from. Passed to ffmpeg for processing. If not given, attempts to use images in directory provided by `-d`. If file ends with .csv, loads the saved image details for re-processing.
 	- default: `None`
-- `-o <out_file>`: Output. File to output generated image.
+- `-o <out_file>`: Output. File to output generated image. Also creates a file named <out_file>.csv that allows creation of new resolutions without re-scanning the media.
 	- default: `out.png`
 - `-q <resolution>`: Image Quality. Uses standard resolutions: 240, 360, 480, 720, 1080, 4000, 8000.
 	- default: `1080`
