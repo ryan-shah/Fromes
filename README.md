@@ -92,6 +92,7 @@ The code with each image will produce an 8k resolution image from the csv save f
 ![](example-images/fotr_1fps_480.png)
 
 - [Lord of the Rings: Fellowship of the Ring - FROME Comparison](https://www.frome.co/products/the-lord-of-the-rings-tfotr)
+
 ![](example-images/fotr_compare.jpg)
 
 ### Other examples files
