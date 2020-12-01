@@ -12,7 +12,7 @@ import time
 import csv
 
 # file management
-directory_name = 'frome_images'
+directory_name = 'tmp'
 in_file = ''
 out_file = 'out.png'
 
@@ -287,7 +287,7 @@ def generate_from_csv():
 	with open(in_file) as f:
 		reader = csv.reader(f, delimiter=',')
 		row_num = 1
-		for row in f:
+		for row in reader:
 			color = [int(row[0]), int(row[1]), int(row[2])]
 			colors.append((color, row_num))
 			row_num += 1

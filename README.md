@@ -28,7 +28,7 @@ strip (right). You can see how beautiful movies are in terms of colors!
 - `-c`: clean. Deletes generated image files and directory. Recommended for large video files to preserve disk space.
 	- default: `False`
 - `-d <directory>`: Image Directory. When used with `-i`, directory in which generated images are stored. Otherwise, the directory used to find images. Images must be in the following format: `img%05d.jpeg`.
-	- default: `frome_images`
+	- default: `tmp`
 - `-h`: Help. Shows the help command
 - `-i <in_file>`: Input. Video file to generate from. Passed to ffmpeg for processing. If not given, attempts to use images in directory provided by `-d`. If file ends with .csv, loads the saved image details for re-processing.
 	- default: `None`
@@ -46,26 +46,58 @@ strip (right). You can see how beautiful movies are in terms of colors!
 - `-w <width>`: Width. OVerride the width of the resolution
 
 ## Examples
-- [glip_glops.mp4](example-videos/glip_glops.mp4): `./frome.py -i example-videos/glip_glops.mp4 -d tmp -o example-images/glip_glops.png -q 8000 -t 10`
-![](example-images/glip_glops.png)
 
-- [glip_glops.mp4 - 1 fps](example-videos/glip_glops.mp4): `./frome.py -i example-videos/glip_glops.mp4 -d tmp -o example-images/glip_glops_1fps.png -q 8000 -t 10 -r 1`
-![](example-images/glip_glops_1fps.png)
+### Extracting using a file - [glip_glops.mp4](example-videos/glip_glops.mp4)
+- Extract at video's fps and generate image at 8k resolution:
+	-  `./frome.py -i example-videos/glip_glops.mp4 -o example-images/glip_glops_8k.png -q 8000`
 
-- [Man or Muppet music video](https://www.youtube.com/watch?v=cRTjksM3YAs)
-![](example-images/muppet.png)
+![](example-images/glip_glops_8k.png)
 
-- [Man or Muppet music video - 1fps](https://www.youtube.com/watch?v=cRTjksM3YAs)
+- Extract at 1 fps at 8k resolution: 
+	- `./frome.py -i example-videos/glip_glops.mp4 -o example-images/glip_glops_1fps_8k.png -q 8000 -r 1`
+
+![](example-images/glip_glops_1fps_8k.png)
+
+### Quality at different fps [Man or Muppet music video](https://www.youtube.com/watch?v=cRTjksM3YAs)
+- Extracted at video's fps at 8k resolution
+
+![](example-images/muppet_8k.png)
+
+- Extracted at 1fps at 8k resolution
+
 ![](example-images/muppet_1fps.png)
 
-- [Man or Muppet music video - 0.5fps](https://www.youtube.com/watch?v=cRTjksM3YAs)
+
+- Extracted at .5 fps (1 frame every 2 seconds) at 8k resolution
+
 ![](example-images/muppet_p5fps.png)
 
-- Star Wars: Empire Strikes Back - 1fps
-![](example-images/esb.png)
+### Comparison to Fromes.co
+These images are generated at 1fps at 480p resolution. Below them you will find the Fromes.co store version.
+In practice you would use a higher resolution, but the images are too big to store here in this manner.
+The code with each image will produce an 8k resolution image from the csv save files for your viewing.
 
-- [Monty Python & the Holy Grail - 1fps](https://www.youtube.com/watch?v=PxagJ8fpsv8)
-![](example-images/holy_grail_1fps.png)
+- How to Train your Dragon
+	- `./frome.py -i example-csv/h2tyd_1fps.csv -o h2tyd_1fps_8k.png -r 8000`
 
-- [Monty Python & the Holy Grail - FROME Comparison](https://www.frome.co/products/monty-python-and-the-holy-grail)
-![](example-images/monty_python_compare.jpg)
+![](example-images/h2tyd_1fps_480p.png)
+
+- [How to Train your Dragon - FROME Comparison](https://www.frome.co/products/how-to-train-your-dragon)
+
+![](example-images/h2tyd_compare.jpg)
+
+- Lord of the Ring: Fellowship of the Ring
+	- `./frome.py -i example-csv/fotr_1fps.csv -o fotr_1fps_8k.png -r 8000`
+
+![](example-images/lotr_1fps_480.png)
+
+- [Lord of the Rings: Fellowship of the Ring - FROME Comparison](https://www.frome.co/products/the-lord-of-the-rings-tfotr)
+![](example-images/fotr_compare.jpg)
+
+### Other examples files
+- fotr_p5fps.png.csv: Fellowship of the Ring @ .5fps
+- esb_1fps.png.csv: The Empire Srikes Back @ 1fps
+
+#### Google Drive
+Many images and csvs are stored in [google drive](https://drive.google.com/drive/folders/1Iu0MIg0koF0Oe830k3Faq0dCsUtdG5EL?usp=sharing) due to space restrictions
+
