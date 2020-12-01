@@ -141,7 +141,7 @@ def main(argv):
 		# put in order
 		files = sorted(files)
 		for f in files:
-			Queue.put(f)
+			file_queue.put(f)
 	# keep track of threads
 	ids = []
 	# generate threads
@@ -235,7 +235,7 @@ def visualize_colors(colors, height=50, length=300):
 	for color in colors:
 		end = start + (percent * length)
 		cv2.rectangle(rect, (int(start), 0), (int(end), height), \
-			color[0].astype("uint8").tolist()[0], -1)
+			color[0], -1)
 		start = end
 	return rect
 
@@ -265,7 +265,8 @@ def process_images(index):
 		# Find and display most dominant colors
 		cluster = KMeans(n_clusters=1).fit(reshape)
 		id = get_id(f)
-		colors.append((cluster.cluster_centers_, id))
+		color = cluster.cluster_centers_.astype('uint8').tolist()[0]
+		colors.append((color, id))
 		counts[index] += 1
 		if clean:
 			remove(f)
