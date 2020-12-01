@@ -80,7 +80,7 @@ The code with each image will produce an 8k resolution image from the csv save f
 - How to Train your Dragon
 	- `./frome.py -i example-csv/h2tyd_1fps.csv -o h2tyd_1fps_8k.png -r 8000`
 
-![](example-images/h2tyd_1fps_480p.png)
+![](example-images/h2tyd_1fps_480.png)
 
 - [How to Train your Dragon - FROME Comparison](https://www.frome.co/products/how-to-train-your-dragon)
 
@@ -89,7 +89,7 @@ The code with each image will produce an 8k resolution image from the csv save f
 - Lord of the Ring: Fellowship of the Ring
 	- `./frome.py -i example-csv/fotr_1fps.csv -o fotr_1fps_8k.png -r 8000`
 
-![](example-images/lotr_1fps_480.png)
+![](example-images/fotr_1fps_480.png)
 
 - [Lord of the Rings: Fellowship of the Ring - FROME Comparison](https://www.frome.co/products/the-lord-of-the-rings-tfotr)
 ![](example-images/fotr_compare.jpg)
