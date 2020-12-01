@@ -145,7 +145,7 @@ def main(argv):
 		# put in order
 		files = sorted(files)
 		for f in files:
-			Queue.put(f)
+			file_queue.put(f)
 	# keep track of threads
 	ids = []
 	# generate threads
@@ -269,7 +269,7 @@ def process_images(index):
 		# Find and display most dominant colors
 		cluster = KMeans(n_clusters=1).fit(reshape)
 		id = get_id(f)
-		color = cluster.cluster_centers_.astype("uint8").tolist()[0]
+		color = cluster.cluster_centers_.astype('uint8').tolist()[0]
 		colors.append((color, id))
 		counts[index] += 1
 		if clean:
