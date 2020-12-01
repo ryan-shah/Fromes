@@ -9,6 +9,7 @@ import threading, Queue
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
 import time
+import csv
 
 # file management
 directory_name = 'frome_images'
@@ -113,9 +114,12 @@ def main(argv):
 			w = int(arg)
 
 	if not l == 0:
-		resolution[0] = l
+		resolution = (l, resolution[1])
 	if not w == 0:
-		resolution[1] = w
+		resolution = (resolution[0], w)
+
+	if in_file.endswith('csv'):
+		generate_from_csv()
 
 	start = time.time()
 
@@ -235,7 +239,7 @@ def visualize_colors(colors, height=50, length=300):
 	for color in colors:
 		end = start + (percent * length)
 		cv2.rectangle(rect, (int(start), 0), (int(end), height), \
-			color[0].astype("uint8").tolist()[0], -1)
+			color[0], -1)
 		start = end
 	return rect
 
@@ -265,17 +269,42 @@ def process_images(index):
 		# Find and display most dominant colors
 		cluster = KMeans(n_clusters=1).fit(reshape)
 		id = get_id(f)
-		colors.append((cluster.cluster_centers_, id))
+		color = cluster.cluster_centers_.astype("uint8").tolist()[0]
+		colors.append((color, id))
 		counts[index] += 1
 		if clean:
 			remove(f)
 		file_queue.task_done()
+
+def output_csv():
+	with open(out_file + '.csv', 'w') as f:
+		writer = csv.writer(f, delimiter=',')
+		for color in colors:
+			row = color[0]
+			writer.writerow(row)
+
+def generate_from_csv():
+	with open(in_file) as f:
+		reader = csv.reader(f, delimiter=',')
+		for row in f:
+			color = row[:-1]
+			index = row[-1:]
+			colors.append((color, index))
+	colors.sort(key = lambda x: x[1])
+	visualize = visualize_colors(colors, resolution[1], resolution[0])
+	visualize = cv2.cvtColor(visualize, cv2.COLOR_RGB2BGR)
+	output_csv()
+	cv2.imwrite(out_file, visualize)
+	if show:
+		cv2.imshow(out_file, visualize)
+		cv2.waitKey()
 
 # creates the result and outputs it
 def generate_result():
 	colors.sort(key = lambda x: x[1])
 	visualize = visualize_colors(colors, resolution[1], resolution[0])
 	visualize = cv2.cvtColor(visualize, cv2.COLOR_RGB2BGR)
+	output_csv()
 	cv2.imwrite(out_file, visualize)
 	if show:
 		cv2.imshow(out_file, visualize)
