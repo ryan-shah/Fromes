@@ -42,8 +42,8 @@ strip (right). You can see how beautiful movies are in terms of colors!
 	- default: `False`
 - `-t <num_threads>`: Threads. Number of worker threads to process images. 
 	- default: `1`
-- `-l <length>`: Length. Override the length of the resolution
-- `-w <width>`: Width. OVerride the width of the resolution
+- `-l <length>`: Length in inches. Override the length of the resolution. Resolution at 300dpi.
+- `-w <width>`: Width/Height in inches. Override the width of the resolution. Resolution at 300dpi.
 
 ## Examples
 

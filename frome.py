@@ -114,9 +114,9 @@ def main(argv):
 			w = int(arg)
 
 	if not l == 0:
-		resolution = (l, resolution[1])
+		resolution = (l * 300, resolution[1])
 	if not w == 0:
-		resolution = (resolution[0], w)
+		resolution = (resolution[0], w * 300)
 
 	if in_file.endswith('csv'):
 		generate_from_csv()
@@ -230,6 +230,8 @@ def print_help():
 	print('\tThread count: -t <num_threads>')
 	print('\tFrames Per Second: -r <frame-rate>')
 	print('\tDelete generated image files: -c')
+	print('\tLength (in inches): -l <lengtgh>')
+	print('\tWidth/Height (in inches): -w <width>')
 
 # creates the final image
 def visualize_colors(colors, height=50, length=300):
