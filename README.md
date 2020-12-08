@@ -1,4 +1,4 @@
-# Fromes
+# MovieBarcodes
 This project was inspired by the [Fromes](https://www.frome.co/) website/service.
 
 However, since I didn't want to pay $200+ on their prints, I figured I'd see if I could do it myself and print the resulting image for much cheaper.
