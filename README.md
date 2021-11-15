@@ -78,7 +78,7 @@ In practice you would use a higher resolution, but the images are too big to sto
 The code with each image will produce an 8k resolution image from the csv save files for your viewing.
 
 - How to Train your Dragon
-	- `./mov-bar.py -i example-csv/h2tyd_1fps.csv -o h2tyd_1fps_8k.png -r 8000`
+	- `./mov-bar.py -i example-csv/h2tyd_1fps.csv -o h2tyd_1fps_8k.png -q 8000`
 
 ![](example-images/h2tyd_1fps_480.png)
 
@@ -87,7 +87,7 @@ The code with each image will produce an 8k resolution image from the csv save f
 ![](example-images/h2tyd_compare.jpg)
 
 - Lord of the Ring: Fellowship of the Ring
-	- `./mov-bar.py -i example-csv/fotr_1fps.csv -o fotr_1fps_8k.png -r 8000`
+	- `./mov-bar.py -i example-csv/fotr_1fps.csv -o fotr_1fps_8k.png -q 8000`
 
 ![](example-images/fotr_1fps_480.png)
 

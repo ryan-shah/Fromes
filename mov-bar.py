@@ -218,9 +218,9 @@ def generate_images():
 def print_help():
 	global resolutions
 	print('Create from video file')
-	print('\tfrome.py -i <video-input> [-d <images-directory-name>]')
+	print('\tmov-bar.py -i <video-input> [-d <images-directory-name>]')
 	print('Create from directory of images')
-	print('\tfrome.py -d <images-directory-name>')
+	print('\tmov-bar.py -d <images-directory-name>')
 	print('Extra options:')
 	r_values = resolutions.keys()
 	r_values.sort(reverse=True, key=int)
