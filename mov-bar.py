@@ -44,6 +44,10 @@ clean = False
 # whether to display the result
 show = False
 
+# mode to return result in
+modes = ['bar', 'circle', 'polar']
+mode = 'bar'
+
 # set the available resolutions
 def setup_resolutions():
 	global resolutions
@@ -71,11 +75,13 @@ def main(argv):
 	global gen_id
 	global clean
 	global show
+	global mode
+	global modes
 	setup_resolutions()
 
 	# define command-line parameters
 	try:
-		opts, args = getopt.getopt(argv, "cd:hi:l:o:q:r:s:t:w:")
+		opts, args = getopt.getopt(argv, "cd:hi:l:m:o:q:r:s:t:w:")
 	except getopt.GetoptError:
 		print('Error: check arguments - ', argv)
 		print_help()
@@ -112,6 +118,11 @@ def main(argv):
 			l = int(arg)
 		elif opt == '-w':
 			w = int(arg)
+		elif opt == '-m':
+			mode = arg
+			if mode not in modes:
+				print(mode + ' not recognized')
+				exit(1)
 
 	if not l == 0:
 		resolution = (l * 300, resolution[1])
@@ -232,6 +243,7 @@ def print_help():
 	print('\tDelete generated image files: -c')
 	print('\tLength (in inches): -l <lengtgh>')
 	print('\tWidth/Height (in inches): -w <width>')
+	print('\tOutput Image Mode: -m [bar | circle]')
 
 # creates the final image
 def visualize_colors(colors, height=50, length=300):
@@ -242,7 +254,24 @@ def visualize_colors(colors, height=50, length=300):
 		end = start + (percent * length)
 		cv2.rectangle(rect, (int(start), 0), (int(end), height), color[0], -1)
 		start = end
-	return rect
+	if mode == 'bar':
+		return rect
+	elif mode == 'polar':
+		center = ( (length * 1.0) / 2, (height * 1.0) / 2 )
+		maxRadius = min(center)
+		return cv2.linearPolar(rect, center, maxRadius, cv2.WARP_FILL_OUTLIERS + cv2.WARP_INVERSE_MAP)
+	elif mode == 'circle':
+		c_width = 2
+		size = (len(colors) * 2) * c_width
+		circ = np.zeros((size, size, 3), np.uint8)
+		center = (size / 2, size / 2)
+		radius = size / 2
+		num = 0
+		for c in colors:
+			cv2.circle(circ, center, radius, c[0], c_width)
+			radius = radius - c_width
+		out_d = max(length, height)
+		return cv2.resize(circ, (out_d, out_d))
 
 # gets the id of the file name to ensure the colors are in order
 def get_id(file):
