@@ -168,6 +168,7 @@ def main(argv):
 		print("\rProcessing Images with " + str(threads) + " threads: " + \
 			str(sc) + ' images processed, ' + str(sz) + " images remaining, " + \
 			str(percent) + "%. time=" + get_time(now-start), end='')
+		time.sleep(5)
 
 	# Join threads back together
 	for x in ids:
