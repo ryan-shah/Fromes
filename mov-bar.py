@@ -207,7 +207,7 @@ def generate_images():
 	global rate
 	rate_opt = ' '
 	if not rate == '':
-		rate_opt = ' -r ' + str(rate) + ' '
+		rate_opt = ' -vf fps=' + str(rate) + ' '
 	cmd = 'ffmpeg -i ' + in_file + rate_opt + join(directory_name, 'img%05d.jpeg')
 	print(cmd)
 	result = system(cmd)
