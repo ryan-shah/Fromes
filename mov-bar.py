@@ -44,6 +44,9 @@ clean = False
 # whether to display the result
 show = False
 
+# title to print
+title = ""
+
 # set the available resolutions
 def setup_resolutions():
 	global resolutions
@@ -71,11 +74,12 @@ def main(argv):
 	global gen_id
 	global clean
 	global show
+	global title
 	setup_resolutions()
 
 	# define command-line parameters
 	try:
-		opts, args = getopt.getopt(argv, "cd:hi:l:o:q:r:s:t:w:")
+		opts, args = getopt.getopt(argv, "cd:hi:l:n:o:q:r:s:t:w:")
 	except getopt.GetoptError:
 		print('Error: check arguments - ', argv)
 		print_help()
@@ -112,6 +116,8 @@ def main(argv):
 			l = int(arg)
 		elif opt == '-w':
 			w = int(arg)
+		elif opt == '-n':
+			title = str(arg)
 
 	if not l == 0:
 		resolution = (l * 300, resolution[1])
@@ -233,6 +239,7 @@ def print_help():
 	print('\tDelete generated image files: -c')
 	print('\tLength (in inches): -l <lengtgh>')
 	print('\tWidth/Height (in inches): -w <width>')
+	print('\tAdd name to image output: -n <text>')
 
 # creates the final image
 def visualize_colors(colors, height=50, length=300):
@@ -297,6 +304,7 @@ def generate_from_csv():
 	colors.sort(key = lambda x: x[1])
 	visualize = visualize_colors(colors, resolution[1], resolution[0])
 	visualize = cv2.cvtColor(visualize, cv2.COLOR_RGB2BGR)
+	visualize = add_title(visualize)
 	cv2.imwrite(out_file, visualize)
 	if show:
 		cv2.imshow(out_file, visualize)
@@ -309,11 +317,31 @@ def generate_result():
 	visualize = visualize_colors(colors, resolution[1], resolution[0])
 	visualize = cv2.cvtColor(visualize, cv2.COLOR_RGB2BGR)
 	output_csv()
+	visualize = add_title(visualize)
 	cv2.imwrite(out_file, visualize)
 	if show:
 		cv2.imshow(out_file, visualize)
 		cv2.waitKey()
 
+def add_title(img):
+	global title
+	fonts = [
+		cv2.FONT_HERSHEY_SIMPLEX,
+		cv2.FONT_HERSHEY_PLAIN,
+		cv2.FONT_HERSHEY_DUPLEX,
+		cv2.FONT_HERSHEY_COMPLEX,
+		cv2.FONT_HERSHEY_TRIPLEX,
+		cv2.FONT_HERSHEY_COMPLEX_SMALL,
+		cv2.FONT_HERSHEY_SCRIPT_SIMPLEX,
+		cv2.FONT_HERSHEY_SCRIPT_COMPLEX
+	]
+	if title != "":
+		h,w,c = img.shape
+		font = fonts[0]
+		# change this if text isn't aligned
+		char_spacing = 20
+		return cv2.putText(img, title.upper(), (w-(len(title * char_spacing)), h-10), font, 1, (255, 255, 255), 3)
+	return img
 if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		print('Error: invalid number of args')
