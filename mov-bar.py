@@ -2,6 +2,7 @@
 from __future__ import print_function
 import cv2, numpy as np
 from sklearn.cluster import KMeans
+from skimage import io
 from os import listdir, makedirs, system, remove, rmdir
 from os.path import isfile, join, exists, basename
 import sys, getopt
@@ -213,8 +214,8 @@ def generate_images():
 	global rate
 	rate_opt = ' '
 	if not rate == '':
-		rate_opt = ' -vf fps=' + str(rate) + ' '
-	cmd = 'ffmpeg -i ' + in_file + rate_opt + join(directory_name, 'img%05d.jpeg')
+		rate_opt = ',fps=' + str(rate) + ' '
+	cmd = 'ffmpeg -i ' + in_file + ' -vf scale=-1:144' + rate_opt + join(directory_name, 'img%05d.jpeg')
 	print(cmd)
 	result = system(cmd)
 	if not result == 0:
@@ -269,10 +270,22 @@ def process_images(index):
 	# run while images are getting generated or are in queue
 	while gen_id != 0 or not file_queue.empty():
 		# get file to process
-		f = file_queue.get()
+		f = ""
+		try:
+			f = file_queue.get_nowait()
+		except Queue.Empty:
+			continue
 		# Load image and convert to a list of pixels
-		image = cv2.imread(f)
-		image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+		image = None
+		try:
+			_ = io.imread(f)
+			image = cv2.imread(f)
+			image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+		except:
+			#print("error with " + f)
+			file_queue.put(f)
+			file_queue.task_done()
+			continue
 		reshape = image.reshape((image.shape[0] * image.shape[1], 3))
 
 		# Find and display most dominant colors
