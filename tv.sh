@@ -11,7 +11,7 @@ do
         name="0$counter"
     fi
     echo "Processing File $i"
-    ./mov-bar.py -i $in_dir$i -o $out_dir$name.jpg -c -t 10 -r 1
+    ./mov-bar.py -i $in_dir$i -o $out_dir$name.jpg -c -t 4 -r 1
     let counter++
 done
 
