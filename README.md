@@ -65,12 +65,12 @@ strip (right). You can see how beautiful movies are in terms of colors!
 
 - Extracted at 1fps at 8k resolution
 
-![](example-images/muppet_1fps.png)
+![](example-images/muppet_1fps_8k.png)
 
 
 - Extracted at .5 fps (1 frame every 2 seconds) at 8k resolution
 
-![](example-images/muppet_p5fps.png)
+![](example-images/muppet_p5fps_8k.png)
 
 ### Comparison to Fromes.co
 These images are generated at 1fps at 480p resolution. Below them you will find the Fromes.co store version.
